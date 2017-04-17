@@ -168,8 +168,7 @@ void CAES::KeyIni(const unsigned char *const Key)
 	unsigned char temp[4]={0};
 	for(i=0;i<m_Nk;i++){
 		for(j=0;j<4;j++){
-			m_pKey[i][j]=Key[i*4+j];
-		}
+			m_pKey[i][j]=Key[i*4+j];		}
 	}
 	for(i=m_Nk;i<m_Nb*(m_Nr+1);i++){
 		for(j=0;j<4;j++){
@@ -192,6 +191,7 @@ void CAES::KeyIni(const unsigned char *const Key)
 		}
 	}
 }
+
 inline void CAES::SubBytes(unsigned char *(InOut[]))
 {
 	int il_i,il_j;

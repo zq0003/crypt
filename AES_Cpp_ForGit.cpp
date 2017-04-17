@@ -29,6 +29,14 @@ CAES::~CAES()
 	MemAllot_Del_1D(Buf)
 	MemAllot_Del_2D(m_pKey, NB*(NR + 1))
 }
+
+//=====================================================================================================
+//	Function: GetFileTypeInfo
+//	in:
+//		char *pFilePath
+//	out:
+//		FileTypeInfo *pFileTypeInfo
+//=======================================================================================================
 void CAES::GetFileTypeInfo(char *pFilePath, FileTypeInfo *pFileTypeInfo)
 {
 	int FilePathstrLen;
@@ -36,7 +44,7 @@ void CAES::GetFileTypeInfo(char *pFilePath, FileTypeInfo *pFileTypeInfo)
 	pFileTypeInfo->HeaderByteNum = 0;
 	pFileTypeInfo->TailerByteNum = 0;
 	FilePathstrLen = strlen((const char *)pFilePath);
-	pFileType = pFilePath + FilePathstrLen;//��pFileType��λ��pInFilePath��ĩβ
+	pFileType = pFilePath + FilePathstrLen;//将pFileType定位于pInFilePath的末尾
 	if (FilePathstrLen >= 2) {
 		pFileType -= 2;
 		if (!strcmp((const char *)pFileType, "et")) {
@@ -144,6 +152,16 @@ void CAES::SetMem(int nk, int nb, int nr)
 	m_Nb = nb;
 	m_Nr = nr;
 }*/
+	
+//===============================================================================
+//	function: Key Expansion
+//	in:
+//		const unsigned char *const Key
+//	out:
+//		unsigned char **g_pKey
+//	note:
+//	bug:
+//===============================================================================
 void CAES::KeyIni(const unsigned char *const Key)
 {
 	int i,j;
@@ -155,14 +173,16 @@ void CAES::KeyIni(const unsigned char *const Key)
 	}
 	for(i=m_Nk;i<m_Nb*(m_Nr+1);i++){
 		for(j=0;j<4;j++){
-			m_pKey[i][j]=m_pKey[i-1][j];
+			m_pKey[i][j]=m_pKey[i-1][j];//因为g_pKey[i][j]在temp[i]完成使命前均未使用，故用g_pKey[i][j]代替了temp[i]
 		}
 		if(i%m_Nk==0){
+		//SubWord(RotWord())^Rcon()
 			for(j=0;j<4;j++){	
 				m_pKey[i][j]=g_AESSBox[(m_pKey[i-1][(j+1)%4]&0xf0)>>4][m_pKey[i-1][(j+1)%4]&0x0f]^g_AESRcon[i/m_Nk][j];
 			}
 		}
 		else if( (m_Nk>6)&&(i%m_Nk==4) ){
+		//SubWord();
 			for(j=0;j<m_Nb;j++){
 				m_pKey[i][j]=g_AESSBox[(m_pKey[i-1][j]&0xf0)>>4][m_pKey[i-1][j]&0x0f];
 			}

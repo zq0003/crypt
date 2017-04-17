@@ -2,7 +2,7 @@
 //All right reserved
 //zq0003@163.com
 //Version 1.3s For GitHub
-//20160211
+//20170417
 #include "stdafx.h"
 #include <iostream>
 #include <fstream>
@@ -37,6 +37,7 @@ CAES::~CAES()
 //	out:
 //		FileTypeInfo *pFileTypeInfo
 //=======================================================================================================
+
 void CAES::GetFileTypeInfo(char *pFilePath, FileTypeInfo *pFileTypeInfo)
 {
 	int FilePathstrLen;
@@ -44,7 +45,7 @@ void CAES::GetFileTypeInfo(char *pFilePath, FileTypeInfo *pFileTypeInfo)
 	pFileTypeInfo->HeaderByteNum = 0;
 	pFileTypeInfo->TailerByteNum = 0;
 	FilePathstrLen = strlen((const char *)pFilePath);
-	pFileType = pFilePath + FilePathstrLen;//å°†pFileTypeå®šä½äºpInFilePathçš„æœ«å°¾
+	pFileType = pFilePath + FilePathstrLen;//½«pFileType¶¨Î»ÓÚpInFilePathµÄÄ©Î²
 	if (FilePathstrLen >= 2) {
 		pFileType -= 2;
 		if (!strcmp((const char *)pFileType, "et")) {
@@ -152,7 +153,7 @@ void CAES::SetMem(int nk, int nb, int nr)
 	m_Nb = nb;
 	m_Nr = nr;
 }*/
-	
+
 //===============================================================================
 //	function: Key Expansion
 //	in:
@@ -168,20 +169,21 @@ void CAES::KeyIni(const unsigned char *const Key)
 	unsigned char temp[4]={0};
 	for(i=0;i<m_Nk;i++){
 		for(j=0;j<4;j++){
-			m_pKey[i][j]=Key[i*4+j];		}
+			m_pKey[i][j]=Key[i*4+j];
+		}
 	}
 	for(i=m_Nk;i<m_Nb*(m_Nr+1);i++){
 		for(j=0;j<4;j++){
-			m_pKey[i][j]=m_pKey[i-1][j];//å› ä¸ºg_pKey[i][j]åœ¨temp[i]å®Œæˆä½¿å‘½å‰å‡æœªä½¿ç”¨ï¼Œæ•…ç”¨g_pKey[i][j]ä»£æ›¿äº†temp[i]
+			m_pKey[i][j]=m_pKey[i-1][j];//ÒòÎªg_pKey[i][j]ÔÚtemp[i]Íê³ÉÊ¹ÃüÇ°¾ùÎ´Ê¹ÓÃ£¬¹ÊÓÃg_pKey[i][j]´úÌæÁËtemp[i]
 		}
 		if(i%m_Nk==0){
-		//SubWord(RotWord())^Rcon()
+			//SubWord(RotWord())^Rcon()
 			for(j=0;j<4;j++){	
 				m_pKey[i][j]=g_AESSBox[(m_pKey[i-1][(j+1)%4]&0xf0)>>4][m_pKey[i-1][(j+1)%4]&0x0f]^g_AESRcon[i/m_Nk][j];
 			}
 		}
 		else if( (m_Nk>6)&&(i%m_Nk==4) ){
-		//SubWord();
+			//SubWord();
 			for(j=0;j<m_Nb;j++){
 				m_pKey[i][j]=g_AESSBox[(m_pKey[i-1][j]&0xf0)>>4][m_pKey[i-1][j]&0x0f];
 			}
@@ -192,6 +194,19 @@ void CAES::KeyIni(const unsigned char *const Key)
 	}
 }
 
+//===============================================================================
+//	Function: SubBytes
+//	in: 
+//		unsigned char *(InOut[])
+//	out:
+//		unsigned char *(InOut[])
+//	note: 
+//		ÒòÎªinput bytes µ½ State array ÓĞĞĞÁĞµÄ×ª»»£¬¶ø´Ë´¦Î´×ª»»£¬
+//      ËùÒÔi¶ÔÓÚNB¡¢j¶ÔÓ¦4
+//	bug: 
+//		ÊäÈëÊä³öĞÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍĞèÒªÔÚµ÷ÓÃ´Ëº¯ÊıµÄ³ÌĞòÖĞÊµÏÖ¼ì²é£¬
+//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//===============================================================================
 inline void CAES::SubBytes(unsigned char *(InOut[]))
 {
 	int il_i,il_j;
@@ -201,6 +216,20 @@ inline void CAES::SubBytes(unsigned char *(InOut[]))
 		}
 	}
 }
+
+//===============================================================================
+//	Function: InvSubBytes
+//	in: 
+//		unsigned char *(InOut[])
+//	out:
+//		unsigned char *(InOut[])
+//	note: 
+//		ÒòÎªinput bytes µ½ State array ÓĞĞĞÁĞµÄ×ª»»£¬¶ø´Ë´¦Î´×ª»»£¬
+//      ËùÒÔi¶ÔÓÚNB¡¢j¶ÔÓ¦4
+//	bug: 
+//		ÊäÈëÊä³öĞÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍĞèÒªÔÚµ÷ÓÃ´Ëº¯ÊıµÄ³ÌĞòÖĞÊµÏÖ¼ì²é£¬
+//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//===============================================================================
 inline void CAES::InvSubBytes(unsigned char *(InOut[]))
 {
 	int il_i,il_j;
@@ -210,6 +239,18 @@ inline void CAES::InvSubBytes(unsigned char *(InOut[]))
 		}
 	}
 }
+
+//===============================================================================
+//	Function: ShiftRows
+//	in: 
+//		unsigned char *(InOut[])
+//	out:
+//		unsigned char *(InOut[])
+//	note: 
+//	bug: 
+//		ÊäÈëÊä³öĞÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍĞèÒªÔÚµ÷ÓÃ´Ëº¯ÊıµÄ³ÌĞòÖĞÊµÏÖ¼ì²é£¬
+//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//===============================================================================
 inline void CAES::ShiftRows(unsigned char *(InOut[]))
 {
 	int il_i,il_j;
@@ -220,13 +261,25 @@ inline void CAES::ShiftRows(unsigned char *(InOut[]))
 			il_temp[il_i][il_j]=InOut[il_i][il_j];
 		}
 	}
-	for(il_i=1;il_i<4;il_i++){
+	for(il_i=1;il_i<4;il_i++){//ÓÉÓÚ×î³õ²¢Î´°´±ê×¼ÖĞ¹æ¶¨Ğı×ª£¬ËùÒÔ´Ë´¦°´ÁĞshift¶ø²»ÊÇ°´ĞĞ
 		for(il_j=0;il_j<m_Nb;il_j++){
 			InOut[il_j][il_i]=il_temp[(il_j+il_i)%m_Nb][il_i];	
 		}
 	}
 	//MemAllot_Del_2D(il_temp, NB)
 }
+
+//===============================================================================
+//	Function: InvShiftRows
+//	in: 
+//		unsigned char *(InOut[])
+//	out:
+//		unsigned char *(InOut[])
+//	note: 
+//	bug: 
+//		ÊäÈëÊä³öĞÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍĞèÒªÔÚµ÷ÓÃ´Ëº¯ÊıµÄ³ÌĞòÖĞÊµÏÖ¼ì²é£¬
+//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//===============================================================================
 inline void CAES::InvShiftRows(unsigned char *(InOut[]))
 {
 	int il_i,il_j;
@@ -244,6 +297,18 @@ inline void CAES::InvShiftRows(unsigned char *(InOut[]))
 	}
 	//MemAllot_Del_2D(il_temp, NB)
 }
+
+//===============================================================================
+//	Function: MixColumns
+//	in: 
+//		unsigned char *(InOut[])
+//	out:
+//		unsigned char *(InOut[])
+//	note: 
+//	bug: 
+//		ÊäÈëÊä³öĞÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍĞèÒªÔÚµ÷ÓÃ´Ëº¯ÊıµÄ³ÌĞòÖĞÊµÏÖ¼ì²é£¬
+//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//===============================================================================
 inline void CAES::MixColumns(unsigned char *(InOut[]))
 {
 	int il_i,il_j;
@@ -262,6 +327,18 @@ inline void CAES::MixColumns(unsigned char *(InOut[]))
 	}
 	//MemAllot_Del_2D(il_temp, NB)
 }
+
+//===============================================================================
+//	Function: InvMixColumns
+//	in: 
+//		unsigned char *(InOut[])
+//	out:
+//		unsigned char *(InOut[])
+//	note: 
+//	bug: 
+//		ÊäÈëÊä³öĞÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍĞèÒªÔÚµ÷ÓÃ´Ëº¯ÊıµÄ³ÌĞòÖĞÊµÏÖ¼ì²é£¬
+//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//===============================================================================
 inline void CAES::InvMixColumns(unsigned char *(InOut[]))
 {
 	int il_i,il_j;
@@ -280,6 +357,19 @@ inline void CAES::InvMixColumns(unsigned char *(InOut[]))
 	}
 	//MemAllot_Del_2D(il_temp, NB)
 }
+
+//===============================================================================
+//	Function: BufE
+//	in: 
+//		unsigned char *pBuf
+//      int BufL: length in Bytes
+//	out:
+//		unsigned char *pBuf
+//	note:
+//	bug: 
+//		ÊäÈëÊä³öĞÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍĞèÒªÔÚµ÷ÓÃ´Ëº¯ÊıµÄ³ÌĞòÖĞÊµÏÖ¼ì²é£¬
+//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//===============================================================================
 void CAES::BufE(unsigned char *pBuf,int BufL)
 {
 	int i,j,k,l;
@@ -312,6 +402,19 @@ void CAES::BufE(unsigned char *pBuf,int BufL)
 	}
 	//MemAllot_Del_2D(pBlo,NB)
 }
+
+//===============================================================================
+//	Function: BufD
+//	in: 
+//		unsigned char *pBuf
+//		int BufL
+//	out:
+//		unsigned char *pBuf
+//	note:
+//	bug: 
+//		ÊäÈëÊä³öĞÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍĞèÒªÔÚµ÷ÓÃ´Ëº¯ÊıµÄ³ÌĞòÖĞÊµÏÖ¼ì²é£¬
+//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//===============================================================================
 void CAES::BufD(unsigned char *pBuf,int BufL)
 {
 	int i,j,k,l;
@@ -345,6 +448,17 @@ void CAES::BufD(unsigned char *pBuf,int BufL)
 	//MemAllot_Del_2D(pBlo,NB)
 }
 
+//===============================================================================
+//	Function: AESFilE
+//	in: 
+//		char *pInFilePath
+//		char *pOutFilePath
+//	out:
+//		char *pOutFilePath
+//	note:
+//		ĞèÒªµ÷ÓÃ¸¸Ààº¯Êı³õÊ¼»¯ÃÜÂë
+//	bug: 
+//===============================================================================
 unsigned char CAES::FilE(char *pInFilePath, char *pOutFilePath)
 {
 	int i;
@@ -380,15 +494,15 @@ unsigned char CAES::FilE(char *pInFilePath, char *pOutFilePath)
 	}
 
 	o_InF.seekg(0, ios::end);
-	InFLen = o_InF.tellg();
+	InFLen = (__int64)o_InF.tellg();
 	o_InF.seekg(0, ios::beg);
 
-	InFLen -= pFileTypeInfo->HeaderByteNum + pFileTypeInfo->TailerByteNum;
+	InFLen -= (__int64)(pFileTypeInfo->HeaderByteNum + pFileTypeInfo->TailerByteNum);
 	AddByteNum = (m_Nb * 4 - InFLen % (m_Nb * 4)) % (m_Nb * 4);
-	InFLen += AddByteNum;
+	InFLen += (__int64)AddByteNum;
 	BloLen = BLOLEN;
 	BloNum = (InFLen - 1) / BloLen;
-	TailBloLen = InFLen%BloLen;
+	TailBloLen = (__int64)InFLen% (__int64)BloLen;
 	if (TailBloLen == 0) {
 		TailBloLen = BloLen;
 	}
@@ -433,6 +547,17 @@ unsigned char CAES::FilE(char *pInFilePath, char *pOutFilePath)
 	return 0x00;
 }
 
+//===============================================================================
+//	Function: AESFilD
+//	in: 
+//		char *pInFilePath
+//		char *pOutFilePath
+//	out:
+//		char *pOutFilePath
+//	note: 
+//		ĞèÒªµ÷ÓÃ¸¸Ààº¯Êı³õÊ¼»¯ÃÜÂë
+//	bug:
+//===============================================================================
 unsigned char CAES::FilD(char *pInFilePath, char *pOutFilePath)
 {
 	int i;
@@ -469,13 +594,13 @@ unsigned char CAES::FilD(char *pInFilePath, char *pOutFilePath)
 	}
 
 	o_InF.seekg(0, ios::end);
-	InFLen = o_InF.tellg();
+	InFLen = (__int64)o_InF.tellg();
 	o_InF.seekg(0, ios::beg);
 	BloLen = BLOLEN;
 
-	InFLen -= pFileTypeInfo->HeaderByteNum + pFileTypeInfo->TailerByteNum + 1;
+	InFLen -= (__int64)(pFileTypeInfo->HeaderByteNum + pFileTypeInfo->TailerByteNum + 1);
 	BloNum = ( InFLen - 1) / BloLen;
-	TailBloLen = InFLen % BloLen;
+	TailBloLen = (__int64)InFLen % (__int64)BloLen;
 	if (TailBloLen == 0) {
 		TailBloLen = BloLen;
 	}

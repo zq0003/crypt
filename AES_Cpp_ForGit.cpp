@@ -1,8 +1,8 @@
 //Edit by zq
 //All right reserved
 //zq0003@163.com
-//Version 1.3s For GitHub
-//20170417
+//Version 1.6s For GitHub
+//20170510
 #include "stdafx.h"
 #include <iostream>
 #include <fstream>
@@ -14,6 +14,8 @@ namespace ZQs_tools{
 
 CAES::CAES()
 {
+	Ver = 1;
+	SubVer = 6;
 	m_Nk = NK;
 	m_Nb = NB;
 	m_Nr = NR;
@@ -452,26 +454,38 @@ void CAES::BufD(unsigned char *pBuf,int BufL)
 //	Function: AESFilE
 //	in: 
 //		char *pInFilePath
-//		char *pOutFilePath
 //	out:
 //		char *pOutFilePath
+//	return:
+//		0x00 success
+//		0x01 error InFile open failed
+//		0x02 error OutFile is already exist or create failed
+//		0x03 error InFile encrypt data length <= 0
 //	note:
 //		需要调用父类函数初始化密码
 //	bug: 
 //===============================================================================
-unsigned char CAES::FilE(char *pInFilePath, char *pOutFilePath)
+unsigned char CAES::FilE(char *pInFilePath)
 {
 	int i;
 	//unsigned char *Buf;
 	unsigned char AddByteNum;
 	long long InFLen;
 	int BloLen, BloNum, TailBloLen;
+	char *pOutFilePath;
+	string o_s(pInFilePath);
+	//o_s.insert(o_s.rfind(".", o_s.length()), "e");//code below solved the problem of filename dont include "." .
+	i = o_s.rfind(".", o_s.length());
+	if (i >= 0) { o_s.insert(i, "e"); }
+	else { o_s.append("e"); }
+	pOutFilePath = (char *)o_s.c_str();
 	ifstream o_InF;
 	ofstream o_OutF;
-	FileTypeInfo *pFileTypeInfo = (struct FileTypeInfo*)malloc(sizeof(struct FileTypeInfo));
+	FileTypeInfo *pFileTypeInfo = new FileTypeInfo;
+	//FileTypeInfo *pFileTypeInfo = (struct FileTypeInfo*)malloc(sizeof(struct FileTypeInfo));
 	o_OutF.open(pOutFilePath, ios::out | ios::binary | ios::_Noreplace | ios::app);
 	if (!o_OutF.is_open()) {
-		cout << "Error: " << pOutFilePath << "already exist or creat "<< pOutFilePath <<"failed.\n";
+		cout << "Error: " << pOutFilePath << "already exist or creat " << pOutFilePath << "failed.\n";
 		return 0x02;
 	}
 	o_InF.open(pInFilePath, ios::in | ios::binary);
@@ -481,7 +495,26 @@ unsigned char CAES::FilE(char *pInFilePath, char *pOutFilePath)
 		return 0x01;
 	}
 	GetFileTypeInfo(pInFilePath, pFileTypeInfo);
-		
+
+	o_InF.seekg(0, ios::end);
+	InFLen = (__int64)o_InF.tellg();
+	o_InF.seekg(0, ios::beg);
+	InFLen -= (__int64)(pFileTypeInfo->HeaderByteNum + pFileTypeInfo->TailerByteNum);
+	if (InFLen <= 0) {
+		o_InF.close();
+		o_OutF.close();
+		free(pFileTypeInfo);
+		return 0x03;//InFile encrypt data length <= 0
+	}
+	AddByteNum = (m_Nb * 4 - InFLen % (m_Nb * 4)) % (m_Nb * 4);
+	InFLen += (__int64)AddByteNum;
+	BloLen = BLOLEN;
+	BloNum = (InFLen - 1) / BloLen;
+	TailBloLen = (__int64)InFLen % (__int64)BloLen;
+	if (TailBloLen == 0) {
+		TailBloLen = BloLen;
+	}
+
 	//MemAllot_New_2D(m_pKey, NB*(NR + 1), 4, unsigned char);
 	if (m_Nk == 4) {
 		KeyIni(Key128bit);
@@ -493,23 +526,13 @@ unsigned char CAES::FilE(char *pInFilePath, char *pOutFilePath)
 		KeyIni(Key256bit);
 	}
 
-	o_InF.seekg(0, ios::end);
-	InFLen = (__int64)o_InF.tellg();
-	o_InF.seekg(0, ios::beg);
-
-	InFLen -= (__int64)(pFileTypeInfo->HeaderByteNum + pFileTypeInfo->TailerByteNum);
-	AddByteNum = (m_Nb * 4 - InFLen % (m_Nb * 4)) % (m_Nb * 4);
-	InFLen += (__int64)AddByteNum;
-	BloLen = BLOLEN;
-	BloNum = (InFLen - 1) / BloLen;
-	TailBloLen = (__int64)InFLen% (__int64)BloLen;
-	if (TailBloLen == 0) {
-		TailBloLen = BloLen;
-	}
-
 	//MemAllot_New_1D(Buf, BLOLEN, unsigned char);
-	o_InF.read((char *)Buf, pFileTypeInfo->HeaderByteNum);
-	o_OutF.write((const char *)Buf, pFileTypeInfo->HeaderByteNum);
+	if (pFileTypeInfo->HeaderByteNum>0) {
+		o_InF.read((char *)Buf, pFileTypeInfo->HeaderByteNum);
+		o_OutF.write((const char *)Buf, pFileTypeInfo->HeaderByteNum);
+	}
+	o_OutF.write((const char*)&Ver, 1);
+	o_OutF.write((const char*)&SubVer, 1);
 	o_OutF.write((const char *)&AddByteNum, 1);
 	if (BloNum != 0) {
 		for (i = 0;i<AddByteNum;i++) {
@@ -537,34 +560,46 @@ unsigned char CAES::FilE(char *pInFilePath, char *pOutFilePath)
 		BufE(Buf, TailBloLen);
 		o_OutF.write((const char *)Buf, TailBloLen);
 	}
-	o_InF.read((char *)Buf, pFileTypeInfo->TailerByteNum);
-	o_OutF.write((const char *)Buf, pFileTypeInfo->TailerByteNum);
+	if (pFileTypeInfo->TailerByteNum > 0) {
+		o_InF.read((char *)Buf, pFileTypeInfo->TailerByteNum);
+		o_OutF.write((const char *)Buf, pFileTypeInfo->TailerByteNum);
+	}
 	//MemAllot_Del_1D(Buf);
 	//MemAllot_Del_2D(m_pKey, NB*(NR + 1));
 	free(pFileTypeInfo);
 	o_InF.close();
 	o_OutF.close();
-	return 0x00;
+	return 0x00;	
 }
 
 //===============================================================================
 //	Function: AESFilD
 //	in: 
 //		char *pInFilePath
-//		char *pOutFilePath
 //	out:
 //		char *pOutFilePath
+//	return:
+//		0x00 success;
+//		0x01 error InFile open failed
+//		0x02 error OutFile already exist or Create failed
 //	note: 
 //		需要调用父类函数初始化密码
 //	bug:
 //===============================================================================
-unsigned char CAES::FilD(char *pInFilePath, char *pOutFilePath)
+unsigned char CAES::FilD(char *pInFilePath)
 {
 	int i;
 	//unsigned char *Buf;
 	unsigned char AddByteNum;
 	long long InFLen;
 	int BloLen, BloNum, TailBloLen;
+	char *pOutFilePath;
+	string o_s(pInFilePath);
+	//o_s.erase(o_s.rfind(".", o_s.length())-1, 1);//code below solved the problem of filename dont include "." .
+	i = o_s.rfind(".", o_s.length());
+	if (i > 0) { o_s.erase(i - 1, 1); }
+	else { o_s.erase(o_s.length() - 1, 1); }
+	pOutFilePath = (char *)o_s.c_str();
 	ifstream o_InF;
 	ofstream o_OutF;
 	FileTypeInfo *pFileTypeInfo = (struct FileTypeInfo*)malloc(sizeof(struct FileTypeInfo));
@@ -581,8 +616,24 @@ unsigned char CAES::FilD(char *pInFilePath, char *pOutFilePath)
 	}
 	GetFileTypeInfo(pInFilePath, pFileTypeInfo);
 
-	//MemAllot_New_2D(m_pKey, NB*(NR + 1), 4, unsigned char);
+	o_InF.seekg(0, ios::end);
+	InFLen = (__int64)o_InF.tellg();
+	o_InF.seekg(0, ios::beg);
+	BloLen = BLOLEN;
+	InFLen -= (__int64)(pFileTypeInfo->HeaderByteNum + 2 + 1 + pFileTypeInfo->TailerByteNum);//2 Bytes Ver SubVer, 1 Byte AddByteNum
+	if (InFLen <= 0) {
+		o_InF.close();
+		o_OutF.close();
+		free(pFileTypeInfo);
+		return 0x03;//decrypt section length <=0
+	}
+	BloNum = (InFLen - 1) / BloLen;
+	TailBloLen = (__int64)InFLen % (__int64)BloLen;
+	if (TailBloLen == 0) {
+		TailBloLen = BloLen;
+	}
 
+	//MemAllot_New_2D(m_pKey, NB*(NR + 1), 4, unsigned char);
 	if (m_Nk == 4) {
 		KeyIni(Key128bit);
 	}
@@ -593,20 +644,12 @@ unsigned char CAES::FilD(char *pInFilePath, char *pOutFilePath)
 		KeyIni(Key256bit);
 	}
 
-	o_InF.seekg(0, ios::end);
-	InFLen = (__int64)o_InF.tellg();
-	o_InF.seekg(0, ios::beg);
-	BloLen = BLOLEN;
-
-	InFLen -= (__int64)(pFileTypeInfo->HeaderByteNum + pFileTypeInfo->TailerByteNum + 1);
-	BloNum = ( InFLen - 1) / BloLen;
-	TailBloLen = (__int64)InFLen % (__int64)BloLen;
-	if (TailBloLen == 0) {
-		TailBloLen = BloLen;
-	}
 	//MemAllot_New_1D(Buf, BLOLEN, unsigned char);
-	o_InF.read((char *)Buf, pFileTypeInfo->HeaderByteNum);
-	o_OutF.write((const char *)Buf, pFileTypeInfo->HeaderByteNum);
+	if (pFileTypeInfo->HeaderByteNum>0) {
+		o_InF.read((char *)Buf, pFileTypeInfo->HeaderByteNum);
+		o_OutF.write((const char *)Buf, pFileTypeInfo->HeaderByteNum);
+	}
+	o_InF.seekg(2, ios::cur);
 	if (BloNum != 0) {
 		o_InF.read((char *)&AddByteNum, 1);
 		o_InF.read((char *)Buf, BloLen);
@@ -627,8 +670,10 @@ unsigned char CAES::FilD(char *pInFilePath, char *pOutFilePath)
 		BufD(Buf, TailBloLen);
 		o_OutF.write((const char *)(Buf + AddByteNum), TailBloLen - AddByteNum);
 	}
-	o_InF.read((char *)Buf, pFileTypeInfo->TailerByteNum);
-	o_OutF.write((const char *)Buf, pFileTypeInfo->TailerByteNum);
+	if (pFileTypeInfo->TailerByteNum>0) {
+		o_InF.read((char *)Buf, pFileTypeInfo->TailerByteNum);
+		o_OutF.write((const char *)Buf, pFileTypeInfo->TailerByteNum);
+	}
 	//MemAllot_Del_1D(Buf);
 	//MemAllot_Del_2D(m_pKey, NB*(NR + 1))
 	free(pFileTypeInfo);
@@ -636,5 +681,25 @@ unsigned char CAES::FilD(char *pInFilePath, char *pOutFilePath)
 	o_OutF.close();
 	return 0x00;
 }
-
+unsigned char CAES::GetVersionForFile(char *pInFilePath, unsigned char *tmpVer, unsigned char *tmpSubVer)
+{
+	ifstream o_InF;
+	//FileTypeInfo *pFileTypeInfo = (struct FileTypeInfo*)malloc(sizeof(struct FileTypeInfo));
+	FileTypeInfo *pFileTypeInfo = new FileTypeInfo;
+	o_InF.open(pInFilePath, ios::in | ios::binary);
+	if (!o_InF.is_open()) {//open input file
+		cout << "Error: open" << pInFilePath << " failed.\n";
+		o_InF.close();
+		return 0x01;
+	}
+	GetFileTypeInfo(pInFilePath, pFileTypeInfo);
+	if (pFileTypeInfo->HeaderByteNum>0) {
+		o_InF.seekg(pFileTypeInfo->HeaderByteNum, ios::beg);
+	}
+	o_InF.read((char *)tmpVer, 1);
+	o_InF.read((char *)tmpSubVer, 1);
+	//free(pFileTypeInfo);
+	delete pFileTypeInfo;
+	return 0x00;
+}
 }

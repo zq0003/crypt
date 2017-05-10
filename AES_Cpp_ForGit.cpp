@@ -700,6 +700,7 @@ unsigned char CAES::GetVersionForFile(char *pInFilePath, unsigned char *tmpVer, 
 	o_InF.read((char *)tmpSubVer, 1);
 	//free(pFileTypeInfo);
 	delete pFileTypeInfo;
+	o_InF.close();
 	return 0x00;
 }
 }

@@ -1,8 +1,8 @@
 //Edit by zq
 //All right reserved
 //zq0003@163.com
-//Version 1.3s For GitHub
-//20160211
+//Version 1.6s For GitHub
+//20170510
 #if !defined(AES_Cpp_ForGit_H__ZQ0913__INCLUDED_)
 #define	AES_Cpp_ForGit_H__ZQ0913__INCLUDED_
 
@@ -177,13 +177,21 @@ public:
 		int HeaderByteNum;
 		int TailerByteNum;
 	};
+public:
+	//PreProcess
 	void GetFileTypeInfo(char *pFilePath, FileTypeInfo *pFileTypeInfo);
+	unsigned char GetVersionForFile(char *pInFilePath, unsigned char *tmpVer, unsigned char *tmpSubVer);
+public:
 	//void SetMem(int nk,int nb,int nr);
 	void KeyIni(const unsigned char *const Key);
 	void BufE(unsigned char *pBuf,int BufL);
 	void BufD(unsigned char *pBuf,int BufL);
-	unsigned char FilE(char *pInFilePath, char *pOutFilePath);
-	unsigned char FilD(char *pInFilePath, char *pOutFilePath);
+	unsigned char FilE(char *pInFilePath);
+	unsigned char FilD(char *pInFilePath);
+private:
+	//PreProcess
+	unsigned char Ver;
+	unsigned char SubVer;
 private:
 	int m_Nk;
 	int m_Nb;

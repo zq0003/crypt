@@ -1,5 +1,4 @@
 //Edit by zq
-//All right reserved
 //zq0003@163.com
 //Version 1.6s For GitHub
 //20170510
@@ -47,7 +46,7 @@ void CAES::GetFileTypeInfo(char *pFilePath, FileTypeInfo *pFileTypeInfo)
 	pFileTypeInfo->HeaderByteNum = 0;
 	pFileTypeInfo->TailerByteNum = 0;
 	FilePathstrLen = strlen((const char *)pFilePath);
-	pFileType = pFilePath + FilePathstrLen;//½«pFileType¶¨Î»ÓÚpInFilePathµÄÄ©Î²
+	pFileType = pFilePath + FilePathstrLen;//å°†pFileTypeå®šä½äºŽpInFilePathçš„æœ«å°¾
 	if (FilePathstrLen >= 2) {
 		pFileType -= 2;
 		if (!strcmp((const char *)pFileType, "et")) {
@@ -176,7 +175,7 @@ void CAES::KeyIni(const unsigned char *const Key)
 	}
 	for(i=m_Nk;i<m_Nb*(m_Nr+1);i++){
 		for(j=0;j<4;j++){
-			m_pKey[i][j]=m_pKey[i-1][j];//ÒòÎªg_pKey[i][j]ÔÚtemp[i]Íê³ÉÊ¹ÃüÇ°¾ùÎ´Ê¹ÓÃ£¬¹ÊÓÃg_pKey[i][j]´úÌæÁËtemp[i]
+			m_pKey[i][j]=m_pKey[i-1][j];//å› ä¸ºg_pKey[i][j]åœ¨temp[i]å®Œæˆä½¿å‘½å‰å‡æœªä½¿ç”¨ï¼Œæ•…ç”¨g_pKey[i][j]ä»£æ›¿äº†temp[i]
 		}
 		if(i%m_Nk==0){
 			//SubWord(RotWord())^Rcon()
@@ -203,11 +202,11 @@ void CAES::KeyIni(const unsigned char *const Key)
 //	out:
 //		unsigned char *(InOut[])
 //	note: 
-//		ÒòÎªinput bytes µ½ State array ÓÐÐÐÁÐµÄ×ª»»£¬¶ø´Ë´¦Î´×ª»»£¬
-//      ËùÒÔi¶ÔÓÚNB¡¢j¶ÔÓ¦4
+//		å› ä¸ºinput bytes åˆ° State array æœ‰è¡Œåˆ—çš„è½¬æ¢ï¼Œè€Œæ­¤å¤„æœªè½¬æ¢ï¼Œ
+//      æ‰€ä»¥iå¯¹äºŽNBã€jå¯¹åº”4
 //	bug: 
-//		ÊäÈëÊä³öÐÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍÐèÒªÔÚµ÷ÓÃ´Ëº¯ÊýµÄ³ÌÐòÖÐÊµÏÖ¼ì²é£¬
-//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//		è¾“å…¥è¾“å‡ºå½¢å‚ä¸ºæŒ‡é’ˆä¸”æœªæ£€æŸ¥å†…å­˜æ˜¯å¦å·²åˆ†é…ï¼Œè¿™å°±éœ€è¦åœ¨è°ƒç”¨æ­¤å‡½æ•°çš„ç¨‹åºä¸­å®žçŽ°æ£€æŸ¥ï¼Œ
+//      å¦åˆ™å¯èƒ½å‘ç”Ÿå†…å­˜æº¢å‡º
 //===============================================================================
 inline void CAES::SubBytes(unsigned char *(InOut[]))
 {
@@ -226,11 +225,11 @@ inline void CAES::SubBytes(unsigned char *(InOut[]))
 //	out:
 //		unsigned char *(InOut[])
 //	note: 
-//		ÒòÎªinput bytes µ½ State array ÓÐÐÐÁÐµÄ×ª»»£¬¶ø´Ë´¦Î´×ª»»£¬
-//      ËùÒÔi¶ÔÓÚNB¡¢j¶ÔÓ¦4
+//		å› ä¸ºinput bytes åˆ° State array æœ‰è¡Œåˆ—çš„è½¬æ¢ï¼Œè€Œæ­¤å¤„æœªè½¬æ¢ï¼Œ
+//      æ‰€ä»¥iå¯¹äºŽNBã€jå¯¹åº”4
 //	bug: 
-//		ÊäÈëÊä³öÐÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍÐèÒªÔÚµ÷ÓÃ´Ëº¯ÊýµÄ³ÌÐòÖÐÊµÏÖ¼ì²é£¬
-//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//		è¾“å…¥è¾“å‡ºå½¢å‚ä¸ºæŒ‡é’ˆä¸”æœªæ£€æŸ¥å†…å­˜æ˜¯å¦å·²åˆ†é…ï¼Œè¿™å°±éœ€è¦åœ¨è°ƒç”¨æ­¤å‡½æ•°çš„ç¨‹åºä¸­å®žçŽ°æ£€æŸ¥ï¼Œ
+//      å¦åˆ™å¯èƒ½å‘ç”Ÿå†…å­˜æº¢å‡º
 //===============================================================================
 inline void CAES::InvSubBytes(unsigned char *(InOut[]))
 {
@@ -250,8 +249,8 @@ inline void CAES::InvSubBytes(unsigned char *(InOut[]))
 //		unsigned char *(InOut[])
 //	note: 
 //	bug: 
-//		ÊäÈëÊä³öÐÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍÐèÒªÔÚµ÷ÓÃ´Ëº¯ÊýµÄ³ÌÐòÖÐÊµÏÖ¼ì²é£¬
-//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//		è¾“å…¥è¾“å‡ºå½¢å‚ä¸ºæŒ‡é’ˆä¸”æœªæ£€æŸ¥å†…å­˜æ˜¯å¦å·²åˆ†é…ï¼Œè¿™å°±éœ€è¦åœ¨è°ƒç”¨æ­¤å‡½æ•°çš„ç¨‹åºä¸­å®žçŽ°æ£€æŸ¥ï¼Œ
+//      å¦åˆ™å¯èƒ½å‘ç”Ÿå†…å­˜æº¢å‡º
 //===============================================================================
 inline void CAES::ShiftRows(unsigned char *(InOut[]))
 {
@@ -263,7 +262,7 @@ inline void CAES::ShiftRows(unsigned char *(InOut[]))
 			il_temp[il_i][il_j]=InOut[il_i][il_j];
 		}
 	}
-	for(il_i=1;il_i<4;il_i++){//ÓÉÓÚ×î³õ²¢Î´°´±ê×¼ÖÐ¹æ¶¨Ðý×ª£¬ËùÒÔ´Ë´¦°´ÁÐshift¶ø²»ÊÇ°´ÐÐ
+	for(il_i=1;il_i<4;il_i++){//ç”±äºŽæœ€åˆå¹¶æœªæŒ‰æ ‡å‡†ä¸­è§„å®šæ—‹è½¬ï¼Œæ‰€ä»¥æ­¤å¤„æŒ‰åˆ—shiftè€Œä¸æ˜¯æŒ‰è¡Œ
 		for(il_j=0;il_j<m_Nb;il_j++){
 			InOut[il_j][il_i]=il_temp[(il_j+il_i)%m_Nb][il_i];	
 		}
@@ -279,8 +278,8 @@ inline void CAES::ShiftRows(unsigned char *(InOut[]))
 //		unsigned char *(InOut[])
 //	note: 
 //	bug: 
-//		ÊäÈëÊä³öÐÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍÐèÒªÔÚµ÷ÓÃ´Ëº¯ÊýµÄ³ÌÐòÖÐÊµÏÖ¼ì²é£¬
-//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//		è¾“å…¥è¾“å‡ºå½¢å‚ä¸ºæŒ‡é’ˆä¸”æœªæ£€æŸ¥å†…å­˜æ˜¯å¦å·²åˆ†é…ï¼Œè¿™å°±éœ€è¦åœ¨è°ƒç”¨æ­¤å‡½æ•°çš„ç¨‹åºä¸­å®žçŽ°æ£€æŸ¥ï¼Œ
+//      å¦åˆ™å¯èƒ½å‘ç”Ÿå†…å­˜æº¢å‡º
 //===============================================================================
 inline void CAES::InvShiftRows(unsigned char *(InOut[]))
 {
@@ -308,8 +307,8 @@ inline void CAES::InvShiftRows(unsigned char *(InOut[]))
 //		unsigned char *(InOut[])
 //	note: 
 //	bug: 
-//		ÊäÈëÊä³öÐÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍÐèÒªÔÚµ÷ÓÃ´Ëº¯ÊýµÄ³ÌÐòÖÐÊµÏÖ¼ì²é£¬
-//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//		è¾“å…¥è¾“å‡ºå½¢å‚ä¸ºæŒ‡é’ˆä¸”æœªæ£€æŸ¥å†…å­˜æ˜¯å¦å·²åˆ†é…ï¼Œè¿™å°±éœ€è¦åœ¨è°ƒç”¨æ­¤å‡½æ•°çš„ç¨‹åºä¸­å®žçŽ°æ£€æŸ¥ï¼Œ
+//      å¦åˆ™å¯èƒ½å‘ç”Ÿå†…å­˜æº¢å‡º
 //===============================================================================
 inline void CAES::MixColumns(unsigned char *(InOut[]))
 {
@@ -338,8 +337,8 @@ inline void CAES::MixColumns(unsigned char *(InOut[]))
 //		unsigned char *(InOut[])
 //	note: 
 //	bug: 
-//		ÊäÈëÊä³öÐÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍÐèÒªÔÚµ÷ÓÃ´Ëº¯ÊýµÄ³ÌÐòÖÐÊµÏÖ¼ì²é£¬
-//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//		è¾“å…¥è¾“å‡ºå½¢å‚ä¸ºæŒ‡é’ˆä¸”æœªæ£€æŸ¥å†…å­˜æ˜¯å¦å·²åˆ†é…ï¼Œè¿™å°±éœ€è¦åœ¨è°ƒç”¨æ­¤å‡½æ•°çš„ç¨‹åºä¸­å®žçŽ°æ£€æŸ¥ï¼Œ
+//      å¦åˆ™å¯èƒ½å‘ç”Ÿå†…å­˜æº¢å‡º
 //===============================================================================
 inline void CAES::InvMixColumns(unsigned char *(InOut[]))
 {
@@ -369,8 +368,8 @@ inline void CAES::InvMixColumns(unsigned char *(InOut[]))
 //		unsigned char *pBuf
 //	note:
 //	bug: 
-//		ÊäÈëÊä³öÐÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍÐèÒªÔÚµ÷ÓÃ´Ëº¯ÊýµÄ³ÌÐòÖÐÊµÏÖ¼ì²é£¬
-//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//		è¾“å…¥è¾“å‡ºå½¢å‚ä¸ºæŒ‡é’ˆä¸”æœªæ£€æŸ¥å†…å­˜æ˜¯å¦å·²åˆ†é…ï¼Œè¿™å°±éœ€è¦åœ¨è°ƒç”¨æ­¤å‡½æ•°çš„ç¨‹åºä¸­å®žçŽ°æ£€æŸ¥ï¼Œ
+//      å¦åˆ™å¯èƒ½å‘ç”Ÿå†…å­˜æº¢å‡º
 //===============================================================================
 void CAES::BufE(unsigned char *pBuf,int BufL)
 {
@@ -414,8 +413,8 @@ void CAES::BufE(unsigned char *pBuf,int BufL)
 //		unsigned char *pBuf
 //	note:
 //	bug: 
-//		ÊäÈëÊä³öÐÎ²ÎÎªÖ¸ÕëÇÒÎ´¼ì²éÄÚ´æÊÇ·ñÒÑ·ÖÅä£¬Õâ¾ÍÐèÒªÔÚµ÷ÓÃ´Ëº¯ÊýµÄ³ÌÐòÖÐÊµÏÖ¼ì²é£¬
-//      ·ñÔò¿ÉÄÜ·¢ÉúÄÚ´æÒç³ö
+//		è¾“å…¥è¾“å‡ºå½¢å‚ä¸ºæŒ‡é’ˆä¸”æœªæ£€æŸ¥å†…å­˜æ˜¯å¦å·²åˆ†é…ï¼Œè¿™å°±éœ€è¦åœ¨è°ƒç”¨æ­¤å‡½æ•°çš„ç¨‹åºä¸­å®žçŽ°æ£€æŸ¥ï¼Œ
+//      å¦åˆ™å¯èƒ½å‘ç”Ÿå†…å­˜æº¢å‡º
 //===============================================================================
 void CAES::BufD(unsigned char *pBuf,int BufL)
 {
@@ -462,7 +461,7 @@ void CAES::BufD(unsigned char *pBuf,int BufL)
 //		0x02 error OutFile is already exist or create failed
 //		0x03 error InFile encrypt data length <= 0
 //	note:
-//		ÐèÒªµ÷ÓÃ¸¸Ààº¯Êý³õÊ¼»¯ÃÜÂë
+//		éœ€è¦è°ƒç”¨çˆ¶ç±»å‡½æ•°åˆå§‹åŒ–å¯†ç 
 //	bug: 
 //===============================================================================
 unsigned char CAES::FilE(char *pInFilePath)
@@ -583,7 +582,7 @@ unsigned char CAES::FilE(char *pInFilePath)
 //		0x01 error InFile open failed
 //		0x02 error OutFile already exist or Create failed
 //	note: 
-//		ÐèÒªµ÷ÓÃ¸¸Ààº¯Êý³õÊ¼»¯ÃÜÂë
+//		éœ€è¦è°ƒç”¨çˆ¶ç±»å‡½æ•°åˆå§‹åŒ–å¯†ç 
 //	bug:
 //===============================================================================
 unsigned char CAES::FilD(char *pInFilePath)

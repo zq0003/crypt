@@ -1,5 +1,4 @@
 //Edit by zq
-//All right reserved
 //zq0003@163.com
 //Version 1.3s For GitHub
 //20160211

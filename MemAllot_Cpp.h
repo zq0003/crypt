@@ -1,5 +1,4 @@
 //Edit by zq
-//All right reserved
 //zq0003@163.com
 //Version 2.1s
 //20170220
@@ -14,7 +13,7 @@
 using std::cout;
 
 //----------------------------------------------------------
-//	ºê¹¦ÄÜ£º·ÖÅäÂú×ãbitÊı×é³¤¶ÈDim1µÄ×î¶ÌµÄcharĞÍÊı×é
+//	å®åŠŸèƒ½ï¼šåˆ†é…æ»¡è¶³bitæ•°ç»„é•¿åº¦Dim1çš„æœ€çŸ­çš„charå‹æ•°ç»„
 //----------------------------------------------------------	
 #define MemAllot_New_1D_BitVecChar(BitVec,Dim1) {\
     if((Dim1)<1) {\
@@ -54,10 +53,10 @@ using std::cout;
 			Type *d_pVec;\
 			int d_i;\
 			if((Dim1)<=0||(Dim2)<=0||(d_pVec=new Type[(Dim1)*(Dim2)])==NULL) {\
-				ASSERT(_T("Error:Î¬ÊıĞ¡ÓÚÁã»òÄÚ´æ²»×ã!"));\
+				ASSERT(_T("Error:ç»´æ•°å°äºé›¶æˆ–å†…å­˜ä¸è¶³!"));\
 			}\
 			if((Matrix=new Type* [Dim1])==NULL) {\
-				ASSERT(_T("Error:ÄÚ´æ²»×ã!"));\
+				ASSERT(_T("Error:å†…å­˜ä¸è¶³!"));\
 			}\
 			for(d_i=0;d_i<(Dim1);d_i++) {\
 				Matrix[d_i]=d_pVec+d_i*(Dim2);\
@@ -105,14 +104,14 @@ using std::cout;
 #define MemAllot_New_3D(Matrix,Dim1,Dim2,Dim3,Type) {\
 			Type *_Pnt;int _Cnt,_Dnt;\
             if((Dim1)<=0||(Dim2)<=0||(Dim3<=0)||(_Pnt=new Type[(Dim1)*(Dim2)*(Dim3)])==NULL){\
-				ASSERT(_T("Error:Î¬ÊıĞ¡ÓÚÁã»òÄÚ´æ²»×ã!"));\
+				ASSERT(_T("Error:ç»´æ•°å°äºé›¶æˆ–å†…å­˜ä¸è¶³!"));\
 			}\
 			if((Matrix=new Type** [Dim1])==NULL){\
-				ASSERT(_T("Error:ÄÚ´æ²»×ã!"));\
+				ASSERT(_T("Error:å†…å­˜ä¸è¶³!"));\
 			}\
             for(_Cnt=0;_Cnt<(Dim1);_Cnt++){\
 				if((Matrix[_Cnt]=new Type* [Dim2])==NULL){\
-					ASSERT(_T("Error:ÄÚ´æ²»×ã!"));\
+					ASSERT(_T("Error:å†…å­˜ä¸è¶³!"));\
 				}\
 				for(_Dnt=0;_Dnt<(Dim2);_Dnt++){\
 					Matrix[_Cnt][_Dnt]=_Pnt+_Cnt*(Dim2)*(Dim3)+_Dnt*(Dim3);\
